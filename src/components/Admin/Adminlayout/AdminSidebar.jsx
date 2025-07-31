@@ -47,7 +47,7 @@ const AdminSidebar = ({ sidebarOpen, setSidebarOpen }) => {
     { id: 'dashboard', label: 'Dashboard', icon: Home, path: '/admin/dashboard' },
     { id: 'users', label: 'User Management', icon: Users, path: '/admin/users' },
     { id: 'hoteliers', label: 'Hotelier Management', icon: Building, path: '/admin/hoteliers' },
-    { id: 'hotels', label: 'Hotel Listings', icon: Hotel, path: '/admin/hotels' },
+    // { id: 'hotels', label: 'Hotel Listings', icon: Hotel, path: '/admin/hotels' },
     { id: 'analytics', label: 'Analytics & Reports', icon: BarChart3, path: '/admin/analytics' },
     { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
   ];

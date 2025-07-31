@@ -7,16 +7,19 @@ const MainLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className='flex'>
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex flex-1 min-h-0">
+        {/* Sidebar: fixed height, full height, positioned for responsiveness */}
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
 
-        <div className="flex flex-col">
+        {/* Main Content */}
+        <div className="flex flex-col flex-1 min-w-0">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-          <div className='flex justify-center w-[1100px] mt-18'>
-    <Outlet />
-          </div>
-      
+          <main className="flex-1 overflow-auto px-4 sm:px-6 lg:px-8 pt-4">
+            <div className="max-w-full sm:max-w-7xl mx-auto">
+              <Outlet />
+            </div>
+          </main>
         </div>
       </div>
     </div>
@@ -24,3 +27,4 @@ const MainLayout = () => {
 };
 
 export default MainLayout;
+
