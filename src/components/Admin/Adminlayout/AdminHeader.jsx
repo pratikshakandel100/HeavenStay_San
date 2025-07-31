@@ -6,6 +6,7 @@ import { getAdminNotifications, markNotificationAsRead, markAllNotificationsAsRe
 import { toast } from 'react-hot-toast';
 import api from '../../../services/api';
 
+
 const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const navigate = useNavigate();
   const { logout } = useAuth();
@@ -17,7 +18,6 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [userLoading, setUserLoading] = useState(true);
 
-  // Fetch notifications and user profile on component mount
   useEffect(() => {
     fetchNotifications();
     fetchUserProfile();
@@ -26,31 +26,20 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const fetchUserProfile = async () => {
     try {
       setUserLoading(true);
-      
       const userData = localStorage.getItem('user');
       const token = localStorage.getItem('token');
-      
-      console.log('AdminHeader - userData from localStorage:', userData);
-      console.log('AdminHeader - token from localStorage:', token);
-      
+
       if (userData && token) {
         const parsedUser = JSON.parse(userData);
-        console.log('AdminHeader - Using localStorage user:', parsedUser);
         setCurrentUser(parsedUser);
         return;
       }
-      
-      console.log('AdminHeader - No localStorage data, trying API');
+
       const response = await api.auth.getProfile();
-      console.log('AdminHeader - API response:', response);
       setCurrentUser(response.user);
-    } catch (error) {
-      console.error('Error fetching user profile:', error);
-      // Final fallback to localStorage if API fails
+    } catch {
       const userData = localStorage.getItem('user');
-      if (userData) {
-        setCurrentUser(JSON.parse(userData));
-      }
+      if (userData) setCurrentUser(JSON.parse(userData));
     } finally {
       setUserLoading(false);
     }
@@ -62,8 +51,7 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
       const response = await getAdminNotifications({ page: 1, limit: 10 });
       setNotifications(response.notifications || []);
       setUnreadCount(response.unreadCount || 0);
-    } catch (error) {
-      console.error('Error fetching notifications:', error);
+    } catch {
       toast.error('Failed to load notifications');
     } finally {
       setLoading(false);
@@ -73,16 +61,13 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const handleMarkAsRead = async (notificationId) => {
     try {
       await markNotificationAsRead(notificationId);
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, isRead: true }
-            : notification
+      setNotifications((prev) =>
+        prev.map((notification) =>
+          notification.id === notificationId ? { ...notification, isRead: true } : notification
         )
       );
-      setUnreadCount(prev => Math.max(0, prev - 1));
-    } catch (error) {
-      console.error('Error marking notification as read:', error);
+      setUnreadCount((prev) => Math.max(0, prev - 1));
+    } catch {
       toast.error('Failed to mark notification as read');
     }
   };
@@ -90,13 +75,10 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllNotificationsAsRead();
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, isRead: true }))
-      );
+      setNotifications((prev) => prev.map((notification) => ({ ...notification, isRead: true })));
       setUnreadCount(0);
       toast.success('All notifications marked as read');
-    } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+    } catch {
       toast.error('Failed to mark all notifications as read');
     }
   };
@@ -104,31 +86,25 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
   const handleDeleteNotification = async (notificationId) => {
     try {
       await deleteNotification(notificationId);
-      setNotifications(prev => 
-        prev.filter(notification => notification.id !== notificationId)
-      );
-      // Update unread count if the deleted notification was unread
-      const deletedNotification = notifications.find(n => n.id === notificationId);
+      setNotifications((prev) => prev.filter((notification) => notification.id !== notificationId));
+      const deletedNotification = notifications.find((n) => n.id === notificationId);
       if (deletedNotification && !deletedNotification.isRead) {
-        setUnreadCount(prev => Math.max(0, prev - 1));
+        setUnreadCount((prev) => Math.max(0, prev - 1));
       }
       toast.success('Notification deleted');
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    } catch {
       toast.error('Failed to delete notification');
     }
   };
 
   const handleViewAllNotifications = () => {
     setShowNotifications(false);
-    // Navigate to notifications page
-    window.location.href = '/admin/notifications';
+    navigate('/admin/notifications');
   };
 
   const handleProfileClick = () => {
     setShowUserMenu(false);
-    // Navigate to admin profile page
-    window.location.href = '/admin/profile';
+    navigate('/admin/profile');
   };
 
   const handleLogout = async () => {
@@ -137,8 +113,7 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
       await logout();
       navigate('/login');
       toast.success('Logged out successfully');
-    } catch (error) {
-      console.error('Logout error:', error);
+    } catch {
       toast.error('Failed to logout');
     }
   };
@@ -150,10 +125,11 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className="lg:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100"
+            aria-label="Toggle sidebar"
           >
             <Menu className="h-5 w-5" />
           </button>
-          
+
           <div className="ml-4 lg:ml-0">
             <h1 className="text-xl font-semibold text-gray-900">HevenStay Admin Dashboard</h1>
           </div>
@@ -174,9 +150,10 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
 
           {/* Notifications */}
           <div className="relative">
-            <button 
+            <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+              aria-label="Notifications"
             >
               <Bell className="h-5 w-5" />
               {unreadCount > 0 && (
@@ -216,8 +193,8 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
                     </div>
                   ) : (
                     notifications.slice(0, 4).map((notification) => (
-                      <div 
-                        key={notification.id} 
+                      <div
+                        key={notification.id}
                         className={`p-4 border-b border-gray-100 hover:bg-gray-50 cursor-pointer ${
                           !notification.isRead ? 'bg-blue-50' : ''
                         }`}
@@ -232,15 +209,14 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
                             </p>
                           </div>
                           <div className="flex items-center space-x-1 ml-2">
-                            {!notification.isRead && (
-                              <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                            )}
+                            {!notification.isRead && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
                             <button
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleDeleteNotification(notification.id);
                               }}
                               className="text-gray-400 hover:text-red-500 p-1"
+                              aria-label="Delete notification"
                             >
                               ×
                             </button>
@@ -251,8 +227,8 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
                   )}
                 </div>
                 <div className="p-4 border-t border-gray-200">
-                  <button 
-                    onClick={() => navigate('/admin/notifications')}
+                  <button
+                    onClick={handleViewAllNotifications}
                     className="w-full text-center text-sm text-blue-600 hover:text-blue-700 flex items-center justify-center"
                   >
                     <Eye className="h-4 w-4 mr-1" />
@@ -268,12 +244,14 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
             <button
               onClick={() => setShowUserMenu(!showUserMenu)}
               className="flex items-center space-x-2 p-2 rounded-lg hover:bg-gray-100"
+              aria-haspopup="true"
+              aria-expanded={showUserMenu}
             >
               <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center">
                 {currentUser?.avatar ? (
-                  <img 
-                    src={currentUser.avatar} 
-                    alt="Profile" 
+                  <img
+                    src={currentUser.avatar}
+                    alt="Profile"
                     className="h-8 w-8 rounded-full object-cover"
                   />
                 ) : (
@@ -281,7 +259,7 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
                 )}
               </div>
               <span className="hidden md:block text-sm font-medium text-gray-700">
-                {userLoading ? 'Loading...' : (currentUser?.name || 'Admin')}
+                {userLoading ? 'Loading...' : currentUser?.name || 'Admin'}
               </span>
             </button>
 
@@ -289,14 +267,14 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
             {showUserMenu && (
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
                 <div className="p-2">
-                  <button 
+                  <button
                     onClick={handleProfileClick}
                     className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-lg flex items-center"
                   >
                     <User className="h-4 w-4 mr-2" />
                     My Profile
                   </button>
-                  <button 
+                  <button
                     onClick={() => {
                       setShowUserMenu(false);
                       navigate('/admin/change-password');
@@ -307,7 +285,7 @@ const AdminHeader = ({ setSidebarOpen, sidebarOpen }) => {
                     Change Password
                   </button>
                   <hr className="my-2" />
-                  <button 
+                  <button
                     onClick={handleLogout}
                     className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center"
                   >
