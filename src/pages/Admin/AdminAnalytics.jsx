@@ -5,6 +5,7 @@ import AdminStatCard from '../../components/Admin/AdminCommon/AdminStatCard';
 import { getGeneralAnalytics, getRevenueAnalytics, getUserAnalytics, getBookingAnalytics } from '../../services/adminApi';
 import { useToast } from '../../context/ToastContext';
 
+
 const AdminAnalytics = () => {
   const [timeRange, setTimeRange] = useState('30days');
   const [exportFormat, setExportFormat] = useState('CSV');
@@ -94,13 +95,13 @@ const AdminAnalytics = () => {
       exportDate: new Date().toISOString(),
       timeRange
     };
-    
+
     if (exportFormat === 'CSV') {
       // Convert to CSV format
       const csvContent = "data:text/csv;charset=utf-8," 
         + "Metric,Value,Change\n"
         + stats.map(stat => `${stat.title},${stat.value},${stat.change}`).join("\n");
-      
+
       const encodedUri = encodeURI(csvContent);
       const link = document.createElement("a");
       link.setAttribute("href", encodedUri);
@@ -123,8 +124,8 @@ const AdminAnalytics = () => {
           <h2 className="text-2xl font-bold text-gray-900">Analytics & Reports</h2>
           <p className="text-gray-600">Monitor platform performance and generate reports</p>
         </div>
-        
-        <div className="flex items-center space-x-3">
+
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           {/* Time Range Filter */}
           <select
             value={timeRange}
@@ -136,7 +137,7 @@ const AdminAnalytics = () => {
             <option value="90days">Last 90 Days</option>
             <option value="1year">Last Year</option>
           </select>
-          
+
           {/* Export Options */}
           <select
             value={exportFormat}
@@ -146,11 +147,11 @@ const AdminAnalytics = () => {
             <option value="CSV">CSV</option>
             <option value="PDF">PDF</option>
           </select>
-          
+
           <AdminButton
             onClick={handleExportData}
             style={{ backgroundColor: '#437057' }}
-            className="hover:opacity-90"
+            className="hover:opacity-90 w-full sm:w-max"
           >
             <Download className="h-4 w-4 mr-2" />
             Export Data
@@ -159,11 +160,10 @@ const AdminAnalytics = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {loading ? (
-          // Loading skeleton
           Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="bg-white p-6 rounded-lg shadow-sm animate-pulse">
+            <div key={index} className="bg-white p-4 sm:p-6 rounded-lg shadow-sm animate-pulse">
               <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
               <div className="h-8 bg-gray-200 rounded w-1/2 mb-2"></div>
               <div className="h-3 bg-gray-200 rounded w-1/4"></div>
@@ -176,141 +176,10 @@ const AdminAnalytics = () => {
         )}
       </div>
 
-      {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Revenue Trend */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Revenue Trend</h3>
-          {loading ? (
-            <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
-          ) : monthlyData.length > 0 ? (
-            <div className="h-64 flex items-end space-x-2">
-              {monthlyData.map((data, index) => {
-                const maxRevenue = Math.max(...monthlyData.map(d => d.revenue || 0));
-                return (
-                  <div key={index} className="flex-1 flex flex-col items-center">
-                    <div
-                      className="w-full bg-gradient-to-t from-green-600 to-green-400 rounded-t"
-                      style={{ height: `${maxRevenue > 0 ? (data.revenue / maxRevenue) * 100 : 0}%` }}
-                    />
-                    <span className="text-xs text-gray-600 mt-2">{data.month}</span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No revenue data available
-            </div>
-          )}
-          {!loading && monthlyData.length > 0 && (
-            <div className="mt-4 flex justify-between text-sm text-gray-600">
-              <span>Rs. 0</span>
-              <span>Rs. {Math.max(...monthlyData.map(d => d.revenue || 0)).toLocaleString()}</span>
-            </div>
-          )}
-        </div>
-
-        {/* User Growth */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">User Growth</h3>
-          {loading ? (
-            <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
-          ) : userGrowthData.length > 0 ? (
-            <div className="h-64 flex items-end space-x-2">
-              {userGrowthData.map((data, index) => {
-                const maxUsers = Math.max(...userGrowthData.map(d => d.newUsers || 0));
-                return (
-                  <div key={index} className="flex-1 flex flex-col items-center">
-                    <div className="w-full flex flex-col">
-                      <div
-                        className="w-full bg-gradient-to-t from-blue-600 to-blue-400 rounded-t"
-                        style={{ height: `${maxUsers > 0 ? (data.newUsers / maxUsers) * 120 : 0}px` }}
-                      />
-                    </div>
-                    <span className="text-xs text-gray-600 mt-2">{data.month}</span>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            <div className="h-64 flex items-center justify-center text-gray-500">
-              No user growth data available
-            </div>
-          )}
-          {!loading && userGrowthData.length > 0 && (
-            <div className="mt-4 flex justify-between text-sm text-gray-600">
-              <span>0 New Users</span>
-              <span>{Math.max(...userGrowthData.map(d => d.newUsers || 0)).toLocaleString()} New Users</span>
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Top Performing Hotels */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Top Performing Hotels</h3>
-        <div className="overflow-x-auto">
-          {loading ? (
-            <div className="space-y-3">
-              {Array.from({ length: 5 }).map((_, index) => (
-                <div key={index} className="flex space-x-4 animate-pulse">
-                  <div className="h-4 bg-gray-200 rounded flex-1"></div>
-                  <div className="h-4 bg-gray-200 rounded w-16"></div>
-                  <div className="h-4 bg-gray-200 rounded w-20"></div>
-                  <div className="h-4 bg-gray-200 rounded w-12"></div>
-                  <div className="h-4 bg-gray-200 rounded w-24"></div>
-                </div>
-              ))}
-            </div>
-          ) : topPerformingHotels.length > 0 ? (
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Hotel Name</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Bookings</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Revenue</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Rating</th>
-                  <th className="text-left py-3 px-4 font-medium text-gray-900">Performance</th>
-                </tr>
-              </thead>
-              <tbody>
-                {topPerformingHotels.map((hotel, index) => {
-                  const maxBookings = Math.max(...topPerformingHotels.map(h => h.bookings || 0));
-                  return (
-                    <tr key={index} className="border-b border-gray-100">
-                      <td className="py-3 px-4 font-medium text-gray-900">{hotel.name}</td>
-                      <td className="py-3 px-4 text-gray-700">{hotel.bookings}</td>
-                      <td className="py-3 px-4 text-gray-700">Rs. {hotel.revenue?.toLocaleString() || '0'}</td>
-                      <td className="py-3 px-4 text-gray-700">{hotel.rating || 'N/A'}</td>
-                      <td className="py-3 px-4">
-                        <div className="flex items-center">
-                          <div className="w-full bg-gray-200 rounded-full h-2 mr-2">
-                            <div
-                              className="bg-gradient-to-r from-green-400 to-green-600 h-2 rounded-full"
-                              style={{ width: `${maxBookings > 0 ? (hotel.bookings / maxBookings) * 100 : 0}%` }}
-                            />
-                          </div>
-                          <span className="text-sm text-gray-600">{maxBookings > 0 ? Math.round((hotel.bookings / maxBookings) * 100) : 0}%</span>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              No hotel performance data available
-            </div>
-          )}
-        </div>
-      </div>
-
       {/* Platform Insights */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-6">
         {/* Booking Trends */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Booking Trends</h3>
           {loading ? (
             <div className="space-y-4">
@@ -344,7 +213,7 @@ const AdminAnalytics = () => {
         </div>
 
         {/* Platform Health */}
-        <div className="bg-white p-6 rounded-lg shadow-sm">
+        <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
           <h3 className="text-lg font-semibold text-gray-900 mb-4">Platform Health</h3>
           {loading ? (
             <div className="space-y-4">
@@ -380,5 +249,7 @@ const AdminAnalytics = () => {
     </div>
   );
 };
+
+
 
 export default AdminAnalytics;

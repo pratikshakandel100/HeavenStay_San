@@ -6,6 +6,8 @@ import { hotelsAPI } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
 import { getImageUrl } from '../../utils/imageUtils';
 
+
+
 const HotelProfile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -40,17 +42,17 @@ const HotelProfile = () => {
       // Get hotelier's hotels
       const hotelsResponse = await hotelsAPI.getHotelerHotels();
       const hotels = hotelsResponse.hotels || [];
-      
+
       // Get hotelier profile for avatar
       const profileResponse = await hotelsAPI.getHotelerProfile();
       const profile = profileResponse.profile;
-      
+
       // Use first hotel data if available, otherwise use default values
       const hotel = hotels.length > 0 ? hotels[0] : {};
-      
+
       // Extract policies from hotel.policies object
       const policies = hotel.policies || {};
-      
+
       setHotelData({
         id: hotel.id || null,
         name: hotel.name || '',
@@ -90,7 +92,7 @@ const HotelProfile = () => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      
+
       // Update avatar if selected
       if (selectedAvatarFile) {
         const formData = new FormData();
@@ -98,13 +100,13 @@ const HotelProfile = () => {
         formData.append('email', hotelData.email);
         formData.append('phone', hotelData.phone);
         formData.append('avatar', selectedAvatarFile);
-        
+
         const response = await hotelsAPI.updateHotelerProfileWithAvatar(formData);
         if (response.profile && response.profile.avatar) {
           setHotelData(prev => ({ ...prev, avatar: response.profile.avatar }));
         }
       }
-      
+
       // Create or update hotel data
       const hotelFormData = new FormData();
       hotelFormData.append('name', hotelData.name);
@@ -115,7 +117,7 @@ const HotelProfile = () => {
       hotelFormData.append('email', hotelData.email);
       hotelFormData.append('website', hotelData.website);
       hotelFormData.append('amenities', JSON.stringify(hotelData.amenities));
-      
+
       // Combine all policies into a single object
       const policies = {
         checkIn: hotelData.checkInTime,
@@ -126,17 +128,17 @@ const HotelProfile = () => {
         smoking: hotelData.smokingPolicy
       };
       hotelFormData.append('policies', JSON.stringify(policies));
-      
+
       // Add images to FormData
       hotelData.images.forEach((image, index) => {
         if (image instanceof File) {
           hotelFormData.append('images', image);
         }
       });
-      
+
       let response;
       const isCreating = !hotelData.id;
-      
+
       if (hotelData.id) {
         // Update existing hotel
         response = await hotelsAPI.update(hotelData.id, hotelFormData);
@@ -148,14 +150,14 @@ const HotelProfile = () => {
           setHotelData(prev => ({ ...prev, id: response.hotel.id }));
         }
       }
-      
+
       setIsEditing(false);
       setSelectedAvatarFile(null);
       setAvatarPreview('');
-      
+
       // Refresh data from database to show persisted changes
       await fetchHotelProfile();
-      
+
       const successMessage = isCreating ? 'Hotel profile created successfully!' : 'Hotel profile updated successfully!';
       showToast(successMessage, 'success');
     } catch (error) {
@@ -234,18 +236,18 @@ const HotelProfile = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto px-4 py-6 sm:px-6 lg:px-8 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Hotel Profile</h2>
-          <p className="text-gray-600 mt-1">Manage your hotel information and settings</p>
+          <h2 className="text-2xl sm:text-3xl font-bold text-gray-900">Hotel Profile</h2>
+          <p className="text-gray-600 mt-1 text-sm sm:text-base">Manage your hotel information and settings</p>
         </div>
         <Button
           onClick={() => isEditing ? handleSave() : setIsEditing(true)}
           disabled={saving}
           style={{ backgroundColor: '#437057' }}
-          className="hover:opacity-90"
+          className="w-full sm:w-auto hover:opacity-90 transition-opacity duration-200"
         >
           {saving ? (
             <>
@@ -269,9 +271,9 @@ const HotelProfile = () => {
       {/* Profile Avatar */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Profile Avatar</h3>
-        <div className="flex items-center space-x-6">
+        <div className="flex flex-col sm:flex-row items-center sm:space-x-6 space-y-4 sm:space-y-0">
           <div className="relative">
-            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200">
+            <div className="w-24 h-24 rounded-full overflow-hidden bg-gray-100 border-2 border-gray-200 flex items-center justify-center">
               {avatarPreview || hotelData.avatar ? (
                 <img
                   src={avatarPreview || `http://localhost:5000/${hotelData.avatar}`}
@@ -296,11 +298,11 @@ const HotelProfile = () => {
               </label>
             )}
           </div>
-          <div>
+          <div className="text-center sm:text-left">
             <h4 className="text-lg font-medium text-gray-900">{hotelData.name || 'Hotel Name'}</h4>
-            <p className="text-gray-600">{hotelData.email}</p>
+            <p className="text-gray-600 text-sm sm:text-base">{hotelData.email}</p>
             {isEditing && (
-              <p className="text-sm text-gray-500 mt-2">
+              <p className="text-xs text-gray-500 mt-2">
                 Click the camera icon to upload a new profile picture
               </p>
             )}
@@ -310,7 +312,7 @@ const HotelProfile = () => {
 
       {/* Hotel Images */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-4 sm:gap-0">
           <h3 className="text-lg font-semibold text-gray-900">Hotel Images</h3>
           {isEditing && (
             <div>
@@ -319,6 +321,7 @@ const HotelProfile = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => document.getElementById('add-image-input').click()}
+                className="w-full sm:w-auto"
               >
                 <Camera className="h-4 w-4 mr-2" />
                 Add Image
@@ -333,25 +336,23 @@ const HotelProfile = () => {
             </div>
           )}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {hotelData.images.map((image, index) => {
-            // Handle both file objects and existing URLs
             const imageUrl = getImageUrl(image);
             return (
-            <div key={index} className="relative group">
-              <img
-                src={imageUrl}
-                alt={`Hotel image ${index + 1}`}
-                className="w-full h-48 object-cover rounded-lg"
-              />
-              {isEditing && (
-                <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg">
-                  <div className="flex space-x-2">
-                    <div>
+              <div key={index} className="relative group rounded-lg overflow-hidden shadow-sm">
+                <img
+                  src={imageUrl}
+                  alt={`Hotel image ${index + 1}`}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+                {isEditing && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity rounded-lg p-2">
+                    <div className="flex flex-col space-y-2 w-full">
                       <Button
                         size="sm"
                         variant="outline"
-                        className="text-white border-white hover:bg-white hover:text-gray-900"
+                        className="text-white border-white hover:bg-white hover:text-gray-900 w-full"
                         onClick={() => document.getElementById(`replace-image-${index}`).click()}
                       >
                         <Upload className="h-4 w-4 mr-1" />
@@ -364,18 +365,18 @@ const HotelProfile = () => {
                         accept="image/*"
                         onChange={(e) => handleImageUpload(e, index)}
                       />
+                      <Button
+                        size="sm"
+                        onClick={() => removeImage(index)}
+                        className="bg-red-500 hover:bg-red-600 text-white w-full"
+                      >
+                        <X className="h-4 w-4 mr-1" />
+                        Remove
+                      </Button>
                     </div>
-                    <Button
-                      size="sm"
-                      onClick={() => removeImage(index)}
-                      className="bg-red-500 hover:bg-red-600 text-white"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
                   </div>
-                </div>
-              )}
-            </div>
+                )}
+              </div>
             );
           })}
         </div>
@@ -392,13 +393,13 @@ const HotelProfile = () => {
                 type="text"
                 value={hotelData.name}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2">{hotelData.name}</p>
+              <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.name}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Location</label>
             <div className="flex items-center">
@@ -408,15 +409,15 @@ const HotelProfile = () => {
                   type="text"
                   value={hotelData.location}
                   onChange={(e) => handleInputChange('location', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               ) : (
-                <span className="text-gray-900 py-2">{hotelData.location}</span>
+                <span className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.location}</span>
               )}
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
           {isEditing ? (
@@ -424,10 +425,10 @@ const HotelProfile = () => {
               value={hotelData.description}
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows="4"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           ) : (
-            <p className="text-gray-900 py-2 leading-relaxed">{hotelData.description}</p>
+            <p className="text-gray-900 py-2 leading-relaxed text-sm sm:text-base">{hotelData.description}</p>
           )}
         </div>
       </div>
@@ -445,14 +446,14 @@ const HotelProfile = () => {
                   type="tel"
                   value={hotelData.phone}
                   onChange={(e) => handleInputChange('phone', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               ) : (
-                <span className="text-gray-900 py-2">{hotelData.phone}</span>
+                <span className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.phone}</span>
               )}
             </div>
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Email Address</label>
             <div className="flex items-center">
@@ -462,15 +463,15 @@ const HotelProfile = () => {
                   type="email"
                   value={hotelData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
                 />
               ) : (
-                <span className="text-gray-900 py-2">{hotelData.email}</span>
+                <span className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.email}</span>
               )}
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">Full Address</label>
           {isEditing ? (
@@ -478,10 +479,10 @@ const HotelProfile = () => {
               value={hotelData.address}
               onChange={(e) => handleInputChange('address', e.target.value)}
               rows="2"
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
             />
           ) : (
-            <p className="text-gray-900 py-2">{hotelData.address}</p>
+            <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.address}</p>
           )}
         </div>
       </div>
@@ -497,13 +498,13 @@ const HotelProfile = () => {
                 type="text"
                 value={hotelData.checkInTime}
                 onChange={(e) => handleInputChange('checkInTime', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2">{hotelData.checkInTime}</p>
+              <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.checkInTime}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Check-out Time</label>
             {isEditing ? (
@@ -511,14 +512,14 @@ const HotelProfile = () => {
                 type="text"
                 value={hotelData.checkOutTime}
                 onChange={(e) => handleInputChange('checkOutTime', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2">{hotelData.checkOutTime}</p>
+              <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.checkOutTime}</p>
             )}
           </div>
         </div>
-        
+
         <div className="mt-6 space-y-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Cancellation Policy</label>
@@ -527,13 +528,13 @@ const HotelProfile = () => {
                 value={hotelData.cancellationPolicy}
                 onChange={(e) => handleInputChange('cancellationPolicy', e.target.value)}
                 rows="3"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2 leading-relaxed">{hotelData.cancellationPolicy}</p>
+              <p className="text-gray-900 py-2 leading-relaxed text-sm sm:text-base">{hotelData.cancellationPolicy}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Child Policy</label>
             {isEditing ? (
@@ -541,13 +542,13 @@ const HotelProfile = () => {
                 value={hotelData.childPolicy}
                 onChange={(e) => handleInputChange('childPolicy', e.target.value)}
                 rows="2"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2 leading-relaxed">{hotelData.childPolicy}</p>
+              <p className="text-gray-900 py-2 leading-relaxed text-sm sm:text-base">{hotelData.childPolicy}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Pet Policy</label>
             {isEditing ? (
@@ -555,13 +556,13 @@ const HotelProfile = () => {
                 type="text"
                 value={hotelData.petPolicy}
                 onChange={(e) => handleInputChange('petPolicy', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2">{hotelData.petPolicy}</p>
+              <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.petPolicy}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">Smoking Policy</label>
             {isEditing ? (
@@ -569,10 +570,10 @@ const HotelProfile = () => {
                 type="text"
                 value={hotelData.smokingPolicy}
                 onChange={(e) => handleInputChange('smokingPolicy', e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               />
             ) : (
-              <p className="text-gray-900 py-2">{hotelData.smokingPolicy}</p>
+              <p className="text-gray-900 py-2 text-sm sm:text-base">{hotelData.smokingPolicy}</p>
             )}
           </div>
         </div>
@@ -581,42 +582,42 @@ const HotelProfile = () => {
       {/* Amenities */}
       <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Hotel Amenities</h3>
-        
+
         {isEditing && (
-          <div className="mb-4 flex space-x-2">
+          <div className="mb-4 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
             <input
               type="text"
               value={newAmenity}
               onChange={(e) => setNewAmenity(e.target.value)}
               placeholder="Add new amenity"
-              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm sm:text-base"
               onKeyPress={(e) => e.key === 'Enter' && addAmenity()}
             />
             <Button
               onClick={addAmenity}
               style={{ backgroundColor: '#437057' }}
-              className="hover:opacity-90"
+              className="hover:opacity-90 w-full sm:w-auto transition-opacity duration-200"
             >
               Add
             </Button>
           </div>
         )}
-        
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {hotelData.amenities.map((amenity, index) => (
             <div
               key={index}
-              className={`flex items-center justify-between px-3 py-2 rounded-lg ${
+              className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm ${
                 isEditing ? 'bg-gray-100 border border-gray-200' : 'bg-green-50 border border-green-200'
               }`}
             >
-              <span className="text-sm text-gray-700">{amenity}</span>
+              <span className="text-gray-700">{amenity}</span>
               {isEditing && (
                 <button
                   onClick={() => removeAmenity(amenity)}
-                  className="text-red-500 hover:text-red-700 ml-2"
+                  className="text-red-500 hover:text-red-700 ml-2 text-lg leading-none"
                 >
-                  ×
+                  &times;
                 </button>
               )}
             </div>
@@ -626,5 +627,6 @@ const HotelProfile = () => {
     </div>
   );
 };
+
 
 export default HotelProfile;

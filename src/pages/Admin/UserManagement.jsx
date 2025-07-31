@@ -4,6 +4,7 @@ import AdminButton from '../../components/Admin/AdminCommon/AdminButton';
 import { getAllUsers, updateUserStatus, deleteUser } from '../../services/adminApi';
 import { useToast } from '../../context/ToastContext';
 
+
 const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,7 @@ const UserManagement = () => {
 
   useEffect(() => {
     fetchUsers();
+    // eslint-disable-next-line
   }, [pagination.currentPage, searchTerm, statusFilter]);
 
   const fetchUsers = async () => {
@@ -31,13 +33,12 @@ const UserManagement = () => {
         pagination.limit,
         searchTerm
       );
-      
-      // Filter by status on frontend if needed
+
       let filteredUsers = data.users || [];
       if (statusFilter !== 'All') {
         filteredUsers = filteredUsers.filter(user => user.status === statusFilter);
       }
-      
+
       setUsers(filteredUsers);
       setPagination(prev => ({
         ...prev,
@@ -55,7 +56,7 @@ const UserManagement = () => {
   const handleStatusChange = async (userId, newStatus) => {
     try {
       await updateUserStatus(userId, newStatus);
-      setUsers(users.map(user => 
+      setUsers(users.map(user =>
         user.id === userId ? { ...user, status: newStatus } : user
       ));
       toast.success(`User status updated to ${newStatus}`);
@@ -81,7 +82,6 @@ const UserManagement = () => {
   };
 
   const handleResetPassword = (userId) => {
-    // This would typically call an API endpoint
     toast.info('Password reset email sent to user.');
     setShowActionMenu(null);
   };
@@ -124,8 +124,8 @@ const UserManagement = () => {
       </div>
 
       {/* Filters */}
-      <div className="bg-white p-6 rounded-lg shadow-sm">
-        <div className="flex flex-col md:flex-row gap-4">
+      <div className="bg-white p-4 sm:p-6 rounded-lg shadow-sm">
+        <div className="flex flex-col gap-3 md:flex-row md:items-center">
           <div className="flex-1">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
@@ -156,165 +156,164 @@ const UserManagement = () => {
 
       {/* Users Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto px-2 sm:px-6">
+          <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   User
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Contact
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Join Date
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Bookings
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Last Login
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="px-2 sm:px-3 py-2 sm:py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap">
                   Actions
                 </th>
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-200">
               {loading ? (
-                // Loading skeleton
                 Array.from({ length: 5 }).map((_, index) => (
                   <tr key={index} className="animate-pulse">
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                       <div className="flex items-center">
-                        <div className="h-10 w-10 rounded-full bg-gray-200"></div>
-                        <div className="ml-4">
-                          <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-16"></div>
+                        <div className="h-8 w-8 rounded-full bg-gray-200"></div>
+                        <div className="ml-3">
+                          <div className="h-4 bg-gray-200 rounded w-20 mb-1"></div>
+                          <div className="h-3 bg-gray-200 rounded w-14"></div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded w-28 mb-1"></div>
+                      <div className="h-3 bg-gray-200 rounded w-20"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-gray-200 rounded w-20"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-4 bg-gray-200 rounded w-8"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
                       <div className="h-4 bg-gray-200 rounded w-16"></div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="h-8 w-8 bg-gray-200 rounded"></div>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded w-6"></div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="h-5 bg-gray-200 rounded-full w-14"></div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="h-4 bg-gray-200 rounded w-14"></div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="h-7 w-7 bg-gray-200 rounded"></div>
                     </td>
                   </tr>
                 ))
               ) : users.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-6 py-12 text-center text-gray-500">
+                  <td colSpan="7" className="px-3 py-12 text-center text-gray-500">
                     No users found
                   </td>
                 </tr>
               ) : (
                 users.map((user) => (
-                <tr key={user.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="flex items-center">
-                      <div className="h-10 w-10 rounded-full bg-gray-300 flex items-center justify-center">
-                        <User className="h-5 w-5 text-gray-600" />
+                  <tr key={user.id} className="hover:bg-gray-50">
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="flex items-center min-w-0">
+                        <div className="h-8 w-8 rounded-full bg-gray-300 flex items-center justify-center flex-shrink-0">
+                          <User className="h-4 w-4 text-gray-600" />
+                        </div>
+                        <div className="ml-3 truncate min-w-0">
+                          <div className="text-xs sm:text-sm font-medium text-gray-900 truncate">{user.name}</div>
+                          <div className="text-xs text-gray-500 truncate">ID: {user.id}</div>
+                        </div>
                       </div>
-                      <div className="ml-4">
-                        <div className="text-sm font-medium text-gray-900">{user.name}</div>
-                        <div className="text-sm text-gray-500">ID: {user.id}</div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap min-w-[150px]">
+                      <div className="text-xs sm:text-sm text-gray-900 flex items-center truncate">
+                        <Mail className="h-4 w-4 mr-1 text-gray-400 flex-shrink-0" />
+                        <span className="truncate">{user.email}</span>
                       </div>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 flex items-center">
-                      <Mail className="h-4 w-4 mr-1 text-gray-400" />
-                      {user.email}
-                    </div>
-                    <div className="text-sm text-gray-500 flex items-center mt-1">
-                      <Phone className="h-4 w-4 mr-1 text-gray-400" />
-                      {user.phone}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-900 flex items-center">
-                      <Calendar className="h-4 w-4 mr-1 text-gray-400" />
-                      {new Date(user.joinDate).toLocaleDateString()}
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{user.bookings}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}>
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {user.lastLogin}
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                    <div className="relative">
-                      <button
-                        onClick={() => setShowActionMenu(showActionMenu === user.id ? null : user.id)}
-                        className="p-2 hover:bg-gray-100 rounded-lg"
+                      <div className="text-xs sm:text-sm text-gray-500 flex items-center mt-1 truncate">
+                        <Phone className="h-4 w-4 mr-1 text-gray-400 flex-shrink-0" />
+                        <span className="truncate">{user.phone}</span>
+                      </div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="text-xs sm:text-sm text-gray-900 flex items-center">
+                        <Calendar className="h-4 w-4 mr-1 text-gray-400" />
+                        {new Date(user.joinDate).toLocaleDateString()}
+                      </div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <div className="text-xs sm:text-sm font-medium text-gray-900">{user.bookings}</div>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap">
+                      <span
+                        className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(user.status)}`}
                       >
-                        <MoreVertical className="h-4 w-4 text-gray-500" />
-                      </button>
-                      
-                      {showActionMenu === user.id && (
-                        <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
-                          <div className="p-2">
-                            {user.status === 'Active' && (
+                        {user.status}
+                      </span>
+                    </td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-500">{user.lastLogin}</td>
+                    <td className="px-2 sm:px-3 py-2 sm:py-4 whitespace-nowrap text-xs sm:text-sm font-medium">
+                      <div className="relative">
+                        <button
+                          onClick={() => setShowActionMenu(showActionMenu === user.id ? null : user.id)}
+                          className="p-2 hover:bg-gray-100 rounded-lg"
+                        >
+                          <MoreVertical className="h-4 w-4 text-gray-500" />
+                        </button>
+
+                        {showActionMenu === user.id && (
+                          <div className="absolute right-2 sm:right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 z-10">
+                            <div className="p-2">
+                              {user.status === 'Active' && (
+                                <button
+                                  onClick={() => handleStatusChange(user.id, 'Suspended')}
+                                  className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center"
+                                >
+                                  <Ban className="h-4 w-4 mr-2" />
+                                  Suspend User
+                                </button>
+                              )}
+                              {user.status === 'Suspended' && (
+                                <button
+                                  onClick={() => handleStatusChange(user.id, 'Active')}
+                                  className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg flex items-center"
+                                >
+                                  <Shield className="h-4 w-4 mr-2" />
+                                  Activate User
+                                </button>
+                              )}
                               <button
-                                onClick={() => handleStatusChange(user.id, 'Suspended')}
+                                onClick={() => handleResetPassword(user.id)}
+                                className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg flex items-center"
+                              >
+                                <RotateCcw className="h-4 w-4 mr-2" />
+                                Reset Password
+                              </button>
+                              <button
+                                onClick={() => handleDeleteUser(user.id)}
                                 className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center"
                               >
-                                <Ban className="h-4 w-4 mr-2" />
-                                Suspend User
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Delete User
                               </button>
-                            )}
-                            {user.status === 'Suspended' && (
-                              <button
-                                onClick={() => handleStatusChange(user.id, 'Active')}
-                                className="w-full text-left px-3 py-2 text-sm text-green-600 hover:bg-green-50 rounded-lg flex items-center"
-                              >
-                                <Shield className="h-4 w-4 mr-2" />
-                                Activate User
-                              </button>
-                            )}
-                            <button
-                              onClick={() => handleResetPassword(user.id)}
-                              className="w-full text-left px-3 py-2 text-sm text-blue-600 hover:bg-blue-50 rounded-lg flex items-center"
-                            >
-                              <RotateCcw className="h-4 w-4 mr-2" />
-                              Reset Password
-                            </button>
-                            <button
-                              onClick={() => handleDeleteUser(user.id)}
-                              className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 rounded-lg flex items-center"
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete User
-                            </button>
+                            </div>
                           </div>
-                        </div>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
                 ))
               )}
             </tbody>
@@ -324,16 +323,16 @@ const UserManagement = () => {
 
       {/* Pagination */}
       {pagination.totalPages > 1 && (
-        <div className="bg-white px-6 py-3 rounded-lg shadow-sm">
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-700">
+        <div className="bg-white px-2 sm:px-6 py-3 rounded-lg shadow-sm">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-2">
+            <div className="text-xs sm:text-sm text-gray-700">
               Showing {((pagination.currentPage - 1) * pagination.limit) + 1} to {Math.min(pagination.currentPage * pagination.limit, pagination.totalUsers)} of {pagination.totalUsers} users
             </div>
-            <div className="flex space-x-2">
+            <div className="flex space-x-1 sm:space-x-2">
               <button
                 onClick={() => handlePageChange(pagination.currentPage - 1)}
                 disabled={pagination.currentPage === 1}
-                className="px-3 py-1 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="px-3 py-1 text-xs sm:text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
                 Previous
               </button>
@@ -341,7 +340,7 @@ const UserManagement = () => {
                 <button
                   key={page}
                   onClick={() => handlePageChange(page)}
-                  className={`px-3 py-1 text-sm border rounded-lg ${
+                  className={`px-3 py-1 text-xs sm:text-sm border rounded-lg ${
                     page === pagination.currentPage
                       ? 'bg-blue-500 text-white border-blue-500'
                       : 'hover:bg-gray-50'
@@ -353,7 +352,7 @@ const UserManagement = () => {
               <button
                 onClick={() => handlePageChange(pagination.currentPage + 1)}
                 disabled={pagination.currentPage === pagination.totalPages}
-                className="px-3 py-1 text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
+                className="px-3 py-1 text-xs sm:text-sm border rounded-lg disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
               >
                 Next
               </button>
@@ -363,7 +362,7 @@ const UserManagement = () => {
       )}
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4">
         <div className="bg-white p-4 rounded-lg shadow-sm">
           <div className="text-2xl font-bold text-gray-900">{pagination.totalUsers}</div>
           <div className="text-sm text-gray-600">Total Users</div>
@@ -384,5 +383,8 @@ const UserManagement = () => {
     </div>
   );
 };
+
+
+
 
 export default UserManagement;
